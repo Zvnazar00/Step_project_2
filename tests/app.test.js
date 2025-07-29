@@ -5,7 +5,7 @@ const request = require('supertest');
 describe('GET /', () => {
   var server;
   beforeEach(function () {
-    server = require('../index');
+    server = require('../app/index');
   });
   afterEach(function () {
     server.close();
