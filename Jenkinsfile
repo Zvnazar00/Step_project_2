@@ -1,5 +1,6 @@
 pipeline {
-    agent any  
+    
+    agent { label 'worker' }
 
     environment {
         GIT_REPO_URL     = 'https://github.com/Zvnazar00/Step_project_2.git'
