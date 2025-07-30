@@ -2,7 +2,7 @@ pipeline {
     agent any  
 
     environment {
-        GIT_REPO_URL = 'https://github.com/Zvnazar00/flask_api_devops.git'
+        GIT_REPO_URL = 'https://github.com/Zvnazar00/Step_project_2.git'
         RUNNER_CONTAINER = 'test_runner'
     }
 

@@ -16,4 +16,3 @@ describe('GET /', () => {
       .expect(200, done);
   });
 });
-

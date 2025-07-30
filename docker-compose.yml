@@ -23,8 +23,8 @@ services:
         condition: service_healthy
     networks:
       - test-network
-    # environment:
-    #   - APP_ENDPOINT=http://node_app:3000
+    environment:
+      - APP_ENDPOINT=http://node_app:3000
 
 networks:
   test-network:
