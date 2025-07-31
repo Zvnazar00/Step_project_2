@@ -1,5 +1,4 @@
 pipeline {
-    
     agent { label 'worker' }
 
     environment {
@@ -10,22 +9,25 @@ pipeline {
 
     stages {
 
-        stage('SCM Checkout') {
+        stage('Checkout') {
             steps {
                 git branch: 'main', url: GIT_REPO_URL
             }
         }
 
-        stage('Docker Compose Build & Test') {
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker compose build --no-cache'
+            }
+        }
+
+        stage('Run Tests') {
             steps {
                 script {
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         sh """
-                            echo "Running docker compose tests for node api"
-                            docker compose stop || true
-                            docker compose build --no-cache
+                            echo "Running tests in container"
                             docker compose up --abort-on-container-exit --exit-code-from ${RUNNER_CONTAINER}
-                            echo "Tests finished"
                             docker compose stop || true
                         """
                     }
@@ -33,14 +35,14 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Push Image to DockerHub') {
             when {
-                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+                expression { currentBuild.currentResult == 'SUCCESS' }
             }
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'docker-hub-credentials', 
-                    usernameVariable: 'DOCKER_USER', 
+                    credentialsId: 'docker-hub-credentials',
+                    usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
@@ -53,7 +55,7 @@ pipeline {
 
         stage('Handle Failed Tests') {
             when {
-                expression { currentBuild.result == 'FAILURE' }
+                expression { currentBuild.currentResult == 'FAILURE' }
             }
             steps {
                 echo 'Tests failed'
